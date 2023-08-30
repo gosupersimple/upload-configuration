@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: gosupersimple/upload-configuration@v2
+      - uses: gosupersimple/upload-configuration@v2.1.0
         with:
           account_id: ${{ vars.SUPERSIMPLE_ACCOUNT_ID }}
           token: ${{ secrets.SUPERSIMPLE_TOKEN }}
