@@ -1,0 +1,42 @@
+name: Supersimple Configuration Uploader
+
+description: Upload YAML configuration to Supersimple
+
+inputs:
+  account_id:
+    description: Supersimple account ID
+    required: true
+  token:
+    description: Supersimple API token
+    required: true
+  api_url:
+    description: Supersimple API URL
+    required: false
+    default: https://app.supersimple.io
+  config_file:
+    description: Path to configuration file
+    required: false
+    default: ./supersimple.yaml
+
+runs:
+  using: composite
+
+  steps:
+    - shell: bash
+      env:
+        SUPERSIMPLE_TOKEN: ${{ inputs.token }}
+        SUPERSIMPLE_ACCOUNT_ID: ${{ inputs.account_id }}
+        SUPERSIMPLE_HOST: ${{ inputs.api_url }}
+        SUPERSIMPLE_CONFIG_FILE: ${{ inputs.config_file }}
+      run: |
+        echo "Uploading $SUPERSIMPLE_CONFIG_FILE:"
+        echo "  Account ID: $SUPERSIMPLE_ACCOUNT_ID"
+        echo "  Supersimple host: $SUPERSIMPLE_HOST"
+
+        wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v2.1.0/supersimple-x86_64-linux-gnu
+        chmod +x supersimple-x86_64-linux-gnu
+
+        ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE
+        ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE
+
+        rm supersimple-x86_64-linux-gnu
