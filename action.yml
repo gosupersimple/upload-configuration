@@ -33,7 +33,7 @@ runs:
         echo "  Account ID: $SUPERSIMPLE_ACCOUNT_ID"
         echo "  Supersimple host: $SUPERSIMPLE_HOST"
 
-        wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v2.1.2/supersimple-x86_64-linux-gnu
+        wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v2.3.2/supersimple-x86_64-linux-gnu
         chmod +x supersimple-x86_64-linux-gnu
 
         ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE
