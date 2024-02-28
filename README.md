@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: gosupersimple/upload-configuration@v2.6.1
+      - uses: gosupersimple/upload-configuration@v2.7.1
         with:
           account_id: ${{ vars.SUPERSIMPLE_ACCOUNT_ID }}
           token: ${{ secrets.SUPERSIMPLE_TOKEN }}
