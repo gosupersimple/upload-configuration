@@ -1,0 +1,105 @@
+name: Update Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version
+        required: true
+
+jobs:
+  update:
+    name: Create PR of the latest version
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate action.yml
+        id: generate-action
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            name: Supersimple Configuration Uploader
+
+            description: Upload YAML configuration to Supersimple
+
+            inputs:
+              account_id:
+                description: Supersimple account ID
+                required: true
+              token:
+                description: Supersimple API token
+                required: true
+              api_url:
+                description: Supersimple API URL
+                required: false
+                default: https://app.supersimple.io
+              validate_dangling:
+                description: Validate dangling objects in Supersimple
+                required: false
+                default: "false"
+              delete_dangling:
+                description: Delete dangling objects in Supersimple
+                required: false
+                default: "false"
+              config_file:
+                description: Path to configuration file
+                required: false
+                default: ./supersimple.yaml
+
+            runs:
+              using: composite
+
+              steps:
+                - shell: bash
+                  env:
+                    SUPERSIMPLE_TOKEN: $\{{ inputs.token }}
+                    SUPERSIMPLE_ACCOUNT_ID: $\{{ inputs.account_id }}
+                    SUPERSIMPLE_HOST: $\{{ inputs.api_url }}
+                    SUPERSIMPLE_CONFIG_FILE: $\{{ inputs.config_file }}
+                  run: |
+                    echo "Uploading $SUPERSIMPLE_CONFIG_FILE:"
+                    echo "  Account ID: $SUPERSIMPLE_ACCOUNT_ID"
+                    echo "  Supersimple host: $SUPERSIMPLE_HOST"
+
+                    wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v${{ github.event.inputs.version }}/supersimple-x86_64-linux-gnu
+                    chmod +x supersimple-x86_64-linux-gnu
+
+                    if [ "$\{{ inputs.validate_dangling }}" = "true" ]; then
+                      ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE --validate-dangling
+                    else
+                      ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE
+                    fi
+
+                    if [ "$\{{ inputs.delete_dangling }}" = "true" ]; then
+                      ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE --delete-dangling
+                    else
+                      ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE
+                    fi
+
+                    rm supersimple-x86_64-linux-gnu
+
+      - name: Write action.yaml
+        run: echo "${{ steps.generate-action.outputs.result }}" > action.yml
+
+      - name: Setup Git Config
+        run: |
+          git config --global user.name "Supersimple Bot"
+          git config --global user.email "<>"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update action.yaml to ${{ github.event.inputs.version }}
+          title: Update action.yaml to ${{ github.event.inputs.version }}
+          body: |
+            This PR updates the action.yaml to version ${{ github.event.inputs.version }}.
+
+            Please do not forget to create a release for the version `${{ github.event.inputs.version }}`.
+          branch: update-action-${{ github.event.inputs.version }}
+          base: main
+          reviewers: priithaamer
