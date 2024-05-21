@@ -18,10 +18,10 @@ jobs:
 
       - name: Generate action.yml
         id: generate-action
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
-          result-encoding: string
           script: |
+            const action = `
             name: Supersimple Configuration Uploader
 
             description: Upload YAML configuration to Supersimple
@@ -81,6 +81,11 @@ jobs:
                     fi
 
                     rm supersimple-x86_64-linux-gnu
+            `;
+
+            return action;
+
+          result-encoding: string
 
       - name: Write action.yaml
         run: echo "${{ steps.generate-action.outputs.result }}" > action.yml
