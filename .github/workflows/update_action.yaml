@@ -21,7 +21,10 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const action = `
+            const fs = require('fs');
+            const substitute = (value) => ['$', '{', '{ ', value, ' }', '}'].join('')
+
+            const contents = `
             name: Supersimple Configuration Uploader
 
             description: Upload YAML configuration to Supersimple
@@ -56,39 +59,37 @@ jobs:
               steps:
                 - shell: bash
                   env:
-                    SUPERSIMPLE_TOKEN: $\{{ inputs.token }}
-                    SUPERSIMPLE_ACCOUNT_ID: $\{{ inputs.account_id }}
-                    SUPERSIMPLE_HOST: $\{{ inputs.api_url }}
-                    SUPERSIMPLE_CONFIG_FILE: $\{{ inputs.config_file }}
+                    SUPERSIMPLE_TOKEN: ${substitute('inputs.token')}
+                    SUPERSIMPLE_ACCOUNT_ID: ${substitute('inputs.account_id')}
+                    SUPERSIMPLE_HOST: ${substitute('inputs.api_url')}
+                    SUPERSIMPLE_CONFIG_FILE: ${substitute('inputs.config_file')}
                   run: |
                     echo "Uploading $SUPERSIMPLE_CONFIG_FILE:"
                     echo "  Account ID: $SUPERSIMPLE_ACCOUNT_ID"
                     echo "  Supersimple host: $SUPERSIMPLE_HOST"
 
-                    wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v${{ github.event.inputs.version }}/supersimple-x86_64-linux-gnu
+                    wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v2.7.1/supersimple-x86_64-linux-gnu
                     chmod +x supersimple-x86_64-linux-gnu
 
-                    if [ "$\{{ inputs.validate_dangling }}" = "true" ]; then
+                    if [ "${substitute('inputs.validate_dangling')}" = "true" ]; then
                       ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE --validate-dangling
                     else
                       ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE
                     fi
 
-                    if [ "$\{{ inputs.delete_dangling }}" = "true" ]; then
+                    if [ "${substitute('inputs.delete_dangling')}" = "true" ]; then
                       ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE --delete-dangling
                     else
                       ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE
                     fi
 
                     rm supersimple-x86_64-linux-gnu
+
             `;
 
-            return action;
+            fs.writeFileSync('action.yml', contents);
 
           result-encoding: string
-
-      - name: Write action.yaml
-        run: echo "${{ steps.generate-action.outputs.result }}" > action.yml
 
       - name: Setup Git Config
         run: |
