@@ -104,7 +104,7 @@ jobs:
           body: |
             This PR updates the action.yaml to version ${{ github.event.inputs.version }}.
 
-            Please do not forget to create a release for the version v`${{ github.event.inputs.version }}`.
+            Please do not forget to create a release for the version `v${{ github.event.inputs.version }}`.
           branch: update-action-${{ github.event.inputs.version }}
           base: main
           reviewers: priithaamer
