@@ -1,3 +1,4 @@
+
 name: Supersimple Configuration Uploader
 
 description: Upload YAML configuration to Supersimple
@@ -57,3 +58,4 @@ runs:
         fi
 
         rm supersimple-x86_64-linux-gnu
+
