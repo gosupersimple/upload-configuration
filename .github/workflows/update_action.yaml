@@ -24,8 +24,7 @@ jobs:
             const fs = require('fs');
             const substitute = (value) => ['$', '{', '{ ', value, ' }', '}'].join('')
 
-            const contents = `
-            name: Supersimple Configuration Uploader
+            const contents = `name: Supersimple Configuration Uploader
 
             description: Upload YAML configuration to Supersimple
 
@@ -68,7 +67,7 @@ jobs:
                     echo "  Account ID: $SUPERSIMPLE_ACCOUNT_ID"
                     echo "  Supersimple host: $SUPERSIMPLE_HOST"
 
-                    wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v2.7.1/supersimple-x86_64-linux-gnu
+                    wget -q https://storage.googleapis.com/cdn.supersimple.cloud/supersimple-cli/releases/v${{ github.event.inputs.version }}/supersimple-x86_64-linux-gnu
                     chmod +x supersimple-x86_64-linux-gnu
 
                     if [ "${substitute('inputs.validate_dangling')}" = "true" ]; then
@@ -105,7 +104,7 @@ jobs:
           body: |
             This PR updates the action.yaml to version ${{ github.event.inputs.version }}.
 
-            Please do not forget to create a release for the version `${{ github.event.inputs.version }}`.
+            Please do not forget to create a release for the version v`${{ github.event.inputs.version }}`.
           branch: update-action-${{ github.event.inputs.version }}
           base: main
           reviewers: priithaamer
