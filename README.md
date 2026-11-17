@@ -39,3 +39,7 @@ jobs:
 ### `config_file`
 
 **Optional.** Defaults to `supersimple.yaml` but should point to YAML file in repository. Please note that this file is also being validated against the JSON schema before the import.
+
+### `refresh_cache`
+
+**Optional.** Defaults to `false`. Set to `true` to skip cached results and fetch fresh values from the database during validation and import. Use it when enum values have changed, for example.
