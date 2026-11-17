@@ -51,6 +51,10 @@ jobs:
                 description: Path to configuration file
                 required: false
                 default: ./supersimple.yaml
+              refresh_cache:
+                description: Skip cached results and fetch fresh values from the database during validation and import
+                required: false
+                default: "false"
 
             runs:
               using: composite
@@ -70,16 +74,21 @@ jobs:
                     wget -q https://assets.supersimple.io/supersimple-cli/releases/v${{ github.event.inputs.version }}/supersimple-x86_64-linux-gnu
                     chmod +x supersimple-x86_64-linux-gnu
 
+                    REFRESH_CACHE_FLAG=""
+                    if [ "${substitute('inputs.refresh_cache')}" = "true" ]; then
+                      REFRESH_CACHE_FLAG="--refresh-cache"
+                    fi
+
                     if [ "${substitute('inputs.validate_dangling')}" = "true" ]; then
-                      ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE --validate-dangling
+                      ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE --validate-dangling $REFRESH_CACHE_FLAG
                     else
-                      ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE
+                      ./supersimple-x86_64-linux-gnu validate $SUPERSIMPLE_CONFIG_FILE $REFRESH_CACHE_FLAG
                     fi
 
                     if [ "${substitute('inputs.delete_dangling')}" = "true" ]; then
-                      ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE --delete-dangling
+                      ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE --delete-dangling $REFRESH_CACHE_FLAG
                     else
-                      ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE
+                      ./supersimple-x86_64-linux-gnu import $SUPERSIMPLE_CONFIG_FILE $REFRESH_CACHE_FLAG
                     fi
 
                     rm supersimple-x86_64-linux-gnu
